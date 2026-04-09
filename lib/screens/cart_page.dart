@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/bhejdu_colors.dart';
 import '../widgets/top_app_bar.dart';
+import '../models/cart_model.dart';
 
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -10,32 +11,24 @@ class CartPage extends StatefulWidget {
 }
 
 class _CartPageState extends State<CartPage> {
-  /// CART LIST (dynamic)
-  List<Map<String, dynamic>> cartItems = [
-    {
-      "name": "Fresh Tomatoes",
-      "price": 40,
-      "qty": 1,
-    },
-    {
-      "name": "Premium Rice",
-      "price": 60,
-      "qty": 1,
-    },
-  ];
+
+  /// ✅ VARIANTS API URL (unchanged)
+  static const String variantsApiUrl =
+      "https://darkslategrey-chicken-274271.hostingersite.com/api/get_variants.php";
 
   @override
   Widget build(BuildContext context) {
+    /// ✅ ALWAYS READ LATEST CART DATA
+    final List<Map<String, dynamic>> cartItems = CartModel.items;
+
     return Scaffold(
       backgroundColor: BhejduColors.bgLight,
-
       body: Column(
         children: [
           BhejduAppBar(
             title: "My Cart",
             showBack: true,
             onBackTap: () => Navigator.pop(context),
-
           ),
 
           Expanded(
@@ -52,34 +45,62 @@ class _CartPageState extends State<CartPage> {
                         name: cartItems[i]["name"],
                         price: cartItems[i]["price"],
                         qty: cartItems[i]["qty"],
+                        image: cartItems[i]["image"],
                         onAdd: () {
-                          setState(() => cartItems[i]["qty"]++);
+                          setState(() {
+                            cartItems[i]["qty"]++;
+                          });
                         },
                         onRemove: () {
-                          if (cartItems[i]["qty"] > 1) {
-                            setState(() => cartItems[i]["qty"]--);
-                          } else {
-                            setState(() => cartItems.removeAt(i));
-                          }
+                          setState(() {
+                            if (cartItems[i]["qty"] > 1) {
+                              cartItems[i]["qty"]--;
+                            } else {
+                              cartItems.removeAt(i);
+                            }
+                          });
                         },
                       ),
                     ),
 
                   const SizedBox(height: 20),
-                  _priceDetails(),
+                  _priceDetails(cartItems),
                   const SizedBox(height: 30),
 
+                  /// ✅ CHECKOUT BUTTON
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, "/checkout");
+                      onPressed: cartItems.isEmpty
+                          ? null
+                          : () {
+                        int subtotal = 0;
+                        for (var item in cartItems) {
+                          subtotal +=
+                              (item["qty"] as int) *
+                                  (item["price"] as int);
+                        }
+
+                        int delivery =
+                        subtotal > 500 ? 0 : 40;
+                        int total = subtotal + delivery;
+
+                        Navigator.pushNamed(
+                          context,
+                          "/checkout",
+                          arguments: {
+                            "total": total,
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: BhejduColors.primaryBlue,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        backgroundColor:
+                        BhejduColors.primaryBlue,
+                        padding:
+                        const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(14),
+                          borderRadius:
+                          BorderRadius.circular(14),
                         ),
                       ),
                       child: const Text(
@@ -103,21 +124,23 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  /// EMPTY CART UI
+  /// EMPTY CART
   Widget _emptyCart() {
     return const Center(
       child: Text(
         "Your cart is empty",
-        style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        style:
+        TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
       ),
     );
   }
 
-  /// CART ITEM UI
+  /// CART ITEM
   Widget _cartItem({
     required String name,
     required int price,
     required int qty,
+    String? image,
     required VoidCallback onAdd,
     required VoidCallback onRemove,
   }) {
@@ -143,8 +166,25 @@ class _CartPageState extends State<CartPage> {
               color: BhejduColors.primaryBlueLight,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Icon(Icons.shopping_basket,
-                color: BhejduColors.primaryBlue),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(14),
+              child: image != null && image.isNotEmpty
+                  ? Image.network(
+                image,
+                fit: BoxFit.cover,
+                errorBuilder:
+                    (context, error, stackTrace) {
+                  return const Icon(
+                    Icons.shopping_basket,
+                    color: BhejduColors.primaryBlue,
+                  );
+                },
+              )
+                  : const Icon(
+                Icons.shopping_basket,
+                color: BhejduColors.primaryBlue,
+              ),
+            ),
           ),
 
           const SizedBox(width: 14),
@@ -177,19 +217,11 @@ class _CartPageState extends State<CartPage> {
             children: [
               GestureDetector(
                 onTap: onRemove,
-                child: Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: BhejduColors.primaryBlueLight,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: const Icon(Icons.remove, size: 18),
-                ),
+                child: _qtyButton(Icons.remove, filled: false),
               ),
-
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
                   qty.toString(),
                   style: const TextStyle(
@@ -198,19 +230,9 @@ class _CartPageState extends State<CartPage> {
                   ),
                 ),
               ),
-
               GestureDetector(
                 onTap: onAdd,
-                child: Container(
-                  padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: BhejduColors.primaryBlue,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child:
-                  const Icon(Icons.add, color: Colors.white, size: 18),
-                ),
+                child: _qtyButton(Icons.add, filled: true),
               ),
             ],
           )
@@ -219,14 +241,31 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  /// PRICE DETAILS
-  Widget _priceDetails() {
+  Widget _qtyButton(IconData icon, {required bool filled}) {
+    return Container(
+      padding:
+      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: filled
+            ? BhejduColors.primaryBlue
+            : BhejduColors.primaryBlueLight,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Icon(
+        icon,
+        size: 18,
+        color: filled ? Colors.white : Colors.black,
+      ),
+    );
+  }
+
+  Widget _priceDetails(List<Map<String, dynamic>> cartItems) {
     int subtotal = 0;
 
     for (var item in cartItems) {
-      subtotal += (item["qty"] as int) * (item["price"] as int);
+      subtotal +=
+          (item["qty"] as int) * (item["price"] as int);
     }
-
 
     int delivery = subtotal > 500 ? 0 : 40;
     int total = subtotal + delivery;
@@ -248,12 +287,12 @@ class _CartPageState extends State<CartPage> {
         children: [
           _priceRow("Subtotal", "₹$subtotal"),
           const SizedBox(height: 8),
-          _priceRow("Delivery Fee",
-              delivery == 0 ? "FREE" : "₹$delivery",
-              isGreen: delivery == 0),
-          const SizedBox(height: 8),
+          _priceRow(
+            "Delivery Fee",
+            delivery == 0 ? "FREE" : "₹$delivery",
+            isGreen: delivery == 0,
+          ),
           const Divider(),
-          const SizedBox(height: 8),
           _priceRow("Total", "₹$total", bold: true),
         ],
       ),
@@ -270,16 +309,19 @@ class _CartPageState extends State<CartPage> {
           style: TextStyle(
             color: BhejduColors.textGrey,
             fontSize: 15,
-            fontWeight: bold ? FontWeight.w700 : FontWeight.w500,
+            fontWeight:
+            bold ? FontWeight.w700 : FontWeight.w500,
           ),
         ),
         Text(
           value,
           style: TextStyle(
-            color:
-            isGreen ? BhejduColors.successGreen : BhejduColors.textDark,
+            color: isGreen
+                ? BhejduColors.successGreen
+                : BhejduColors.textDark,
             fontSize: 16,
-            fontWeight: bold ? FontWeight.w700 : FontWeight.w600,
+            fontWeight:
+            bold ? FontWeight.w700 : FontWeight.w600,
           ),
         ),
       ],

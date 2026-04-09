@@ -11,6 +11,7 @@ import '../widgets/offer_card.dart';
 import '../widgets/app_drawer.dart';
 import '../theme/bhejdu_colors.dart';
 import '../screens/product_variants_page.dart';
+import '../models/cart_model.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -356,13 +357,76 @@ class _HomePageState extends State<HomePage>
                                             FontWeight.w600),
                                       ),
                                       const SizedBox(height: 6),
-                                      Text(
-                                        "₹${p["price"]}",
-                                        style: const TextStyle(
-                                            color: BhejduColors
-                                                .successGreen,
-                                            fontWeight:
-                                            FontWeight.bold),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Text(
+                                            "₹${p["price"]}",
+                                            style: const TextStyle(
+                                                color: BhejduColors
+                                                    .successGreen,
+                                                fontWeight:
+                                                FontWeight.bold),
+                                          ),
+                                          GestureDetector(
+                                            onTap: () {
+                                              final productId = p["id"]?.toString();
+                                              final productName = p["name"]?.toString() ?? "Unknown";
+                                              final priceStr = p["price"]?.toString();
+                                              final image = p["image"]?.toString() ?? "";
+                                              
+                                              if (productId == null || productId.isEmpty) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(content: Text("Invalid product ID")),
+                                                );
+                                                return;
+                                              }
+                                              if (priceStr == null || priceStr.isEmpty) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(content: Text("Invalid price")),
+                                                );
+                                                return;
+                                              }
+                                              try {
+                                                final cleanPrice = priceStr
+                                                    .replaceAll(RegExp(r'[^0-9.]'), '')
+                                                    .split('.')[0];
+                                                CartModel.addItem(
+                                                  productId: int.parse(productId),
+                                                  name: productName,
+                                                  price: int.parse(cleanPrice),
+                                                  image: image,
+                                                );
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(
+                                                    content: Text("$productName added to cart!"),
+                                                    duration: const Duration(seconds: 1),
+                                                  ),
+                                                );
+                                                Navigator.pushNamed(context, "/cart");
+                                              } catch (e) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  SnackBar(content: Text("Error: $e")),
+                                                );
+                                              }
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                              decoration: BoxDecoration(
+                                                color: BhejduColors.primaryBlue,
+                                                borderRadius: BorderRadius.circular(8),
+                                              ),
+                                              child: const Text(
+                                                "ADD",
+                                                style: TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 12,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   ),

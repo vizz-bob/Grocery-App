@@ -15,7 +15,9 @@ class AppDrawer extends StatefulWidget {
 class _AppDrawerState extends State<AppDrawer> {
   String userName = "Guest User";
   String userEmail = "guest@example.com";
-  String userImage = ""; // empty in signup
+  String userImage = "";
+
+  bool isLoading = true; // ⭐ ADDED (only new variable)
 
   @override
   void initState() {
@@ -25,42 +27,43 @@ class _AppDrawerState extends State<AppDrawer> {
 
   Future<void> loadUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-
     int? userId = prefs.getInt("user_id");
-
-    // Load from local first
-    userName = prefs.getString("user_name") ?? "Guest User";
-    userEmail = prefs.getString("user_email") ?? "guest@example.com";
-    userImage = prefs.getString("user_image") ?? "";
 
     // ---- FETCH FROM DATABASE (LIVE USER DATA) ----
     if (userId != null) {
       final response = await http.get(
-        Uri.parse("https://darkslategrey-chicken-274271.hostingersite.com/api/get_user.php?user_id=$userId"),
+        Uri.parse(
+          "https://darkslategrey-chicken-274271.hostingersite.com/api/get_user.php?user_id=$userId",
+        ),
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
 
-        setState(() {
-          userName = data["name"] ?? userName;
-          userEmail = data["email"] ?? userEmail;
+        // Check if data is valid and contains user info
+        if (data != null && data is Map && data["status"] == "success") {
+          final userData = data["user"];
+          if (userData != null && userData is Map) {
+            userName = userData["name"] ?? userName;
+            userEmail = userData["email"] ?? userEmail;
 
-          /// If profile_image is NULL → keep blank
-          userImage = (data["profile_image"] != null &&
-              data["profile_image"].toString().isNotEmpty)
-              ? "https://darkslategrey-chicken-274271.hostingersite.com/uploads/${data["profile_image"]}"
-              : "";
-        });
+            userImage = (userData["profile_image"] != null &&
+                userData["profile_image"].toString().isNotEmpty)
+                ? "https://darkslategrey-chicken-274271.hostingersite.com/uploads/${userData["profile_image"]}"
+                : "";
 
-        // Save updated values locally
-        prefs.setString("user_name", userName);
-        prefs.setString("user_email", userEmail);
-        prefs.setString("user_image", userImage);
+            // Save locally
+            prefs.setString("user_name", userName);
+            prefs.setString("user_email", userEmail);
+            prefs.setString("user_image", userImage);
+          }
+        }
       }
     }
 
-    setState(() {});
+    setState(() {
+      isLoading = false; // ⭐ STOP LOADING
+    });
   }
 
   @override
@@ -75,14 +78,17 @@ class _AppDrawerState extends State<AppDrawer> {
             decoration: const BoxDecoration(
               color: BhejduColors.primaryBlue,
             ),
-            child: Row(
+            child: isLoading
+                ? const Center(
+              child: CircularProgressIndicator(color: Colors.white),
+            )
+                : Row(
               children: [
-                // PROFILE IMAGE
                 CircleAvatar(
                   radius: 28,
                   backgroundColor: Colors.white,
                   backgroundImage:
-                  (userImage.isNotEmpty) ? NetworkImage(userImage) : null,
+                  userImage.isNotEmpty ? NetworkImage(userImage) : null,
                   child: userImage.isEmpty
                       ? const Icon(
                     Icons.person,
@@ -91,10 +97,7 @@ class _AppDrawerState extends State<AppDrawer> {
                   )
                       : null,
                 ),
-
                 const SizedBox(width: 16),
-
-                // USER DETAILS
                 Expanded(
                   child: Text(
                     "$userName\n$userEmail",
@@ -136,7 +139,6 @@ class _AppDrawerState extends State<AppDrawer> {
 
           const Divider(height: 36),
 
-          // -------------------- PRIVACY POLICY --------------------
           ListTile(
             leading:
             const Icon(Icons.privacy_tip, color: BhejduColors.primaryBlue),
@@ -147,7 +149,6 @@ class _AppDrawerState extends State<AppDrawer> {
             },
           ),
 
-          // -------------------- TERMS & CONDITIONS --------------------
           ListTile(
             leading:
             const Icon(Icons.description, color: BhejduColors.primaryBlue),
@@ -160,7 +161,6 @@ class _AppDrawerState extends State<AppDrawer> {
 
           const Divider(height: 36),
 
-          // -------------------- LOGOUT --------------------
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.red),
             title: const Text(
@@ -171,7 +171,8 @@ class _AppDrawerState extends State<AppDrawer> {
               ),
             ),
             onTap: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
+              SharedPreferences prefs =
+              await SharedPreferences.getInstance();
               prefs.clear();
 
               Navigator.pushNamedAndRemoveUntil(
@@ -183,7 +184,6 @@ class _AppDrawerState extends State<AppDrawer> {
     );
   }
 
-  // -------------------- ITEM BUILDER --------------------
   Widget _drawerItem(
       BuildContext context, {
         required IconData icon,

@@ -23,18 +23,29 @@ class _CategoriesPageState extends State<CategoriesPage> {
     fetchCategories();
   }
 
-  Future fetchCategories() async {
-    final response = await http.get(
-      Uri.parse("https://darkslategrey-chicken-274271.hostingersite.com/api/get_categories.php"),
-    );
+  Future<void> fetchCategories() async {
+    try {
+      final response = await http.get(
+        Uri.parse(
+          "https://darkslategrey-chicken-274271.hostingersite.com/api/get_categories.php",
+        ),
+      );
 
-    final data = jsonDecode(response.body);
+      final data = jsonDecode(response.body);
 
-    if (data["status"] == "success") {
-      setState(() {
-        categories = data["categories"];
-        loading = false;
-      });
+      if (!mounted) return;
+
+      if (data["status"] == "success") {
+        setState(() {
+          categories = data["categories"] ?? [];
+          loading = false;
+        });
+      } else {
+        setState(() => loading = false);
+      }
+    } catch (e) {
+      debugPrint("❌ Category fetch error: $e");
+      if (mounted) setState(() => loading = false);
     }
   }
 
@@ -63,7 +74,6 @@ class _CategoriesPageState extends State<CategoriesPage> {
       backgroundColor: BhejduColors.bgLight,
       body: Column(
         children: [
-          /// HEADER
           BhejduAppBar(
             title: "Categories",
             showBack: true,
@@ -80,7 +90,8 @@ class _CategoriesPageState extends State<CategoriesPage> {
                   /// SEARCH BAR
                   Container(
                     height: 48,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding:
+                    const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(14),
@@ -95,8 +106,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                     child: const TextField(
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        icon: Icon(Icons.search,
-                            color: BhejduColors.primaryBlue),
+                        icon: Icon(
+                          Icons.search,
+                          color: BhejduColors.primaryBlue,
+                        ),
                         hintText: "Search categories",
                       ),
                     ),
@@ -104,10 +117,11 @@ class _CategoriesPageState extends State<CategoriesPage> {
 
                   const SizedBox(height: 20),
 
-                  /// DYNAMIC GRID
+                  /// CATEGORY GRID
                   GridView.builder(
                     shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
+                    physics:
+                    const NeverScrollableScrollPhysics(),
                     gridDelegate:
                     const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2,
@@ -126,10 +140,10 @@ class _CategoriesPageState extends State<CategoriesPage> {
                         onTap: () {
                           Navigator.pushNamed(
                             context,
-                            "/product-list",   // ✅ FIXED ROUTE NAME
+                            "/product-list",
                             arguments: {
-                              "id": item["id"],          // ✅ CATEGORY ID
-                              "name": item["name"],      // ✅ CATEGORY NAME
+                              "id": item["id"],
+                              "name": item["name"],
                             },
                           );
                         },

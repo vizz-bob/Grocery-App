@@ -46,6 +46,8 @@ class _BannerSliderState extends State<BannerSlider> {
 
         if (list.isNotEmpty) {
           banners = list.map((b) => b["image"].toString()).toList();
+	  // <<< ADD THIS LINE TO DEBUG
+          print("Banners fetched from backend: $banners");
         }
       }
     } catch (e) {
@@ -101,6 +103,7 @@ class _BannerSliderState extends State<BannerSlider> {
               setState(() => currentIndex = index);
             },
             itemBuilder: (context, index) {
+              print("Displaying banner: ${banners[index]}");
               return AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
                 curve: Curves.easeInOut,

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../theme/bhejdu_colors.dart';
 
@@ -260,6 +261,32 @@ class _OtpPageState extends State<OtpPage> {
                     color: BhejduColors.primaryBlue,
                     fontWeight: FontWeight.w600,
                     fontSize: 16,
+                  ),
+                ),
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            /// SKIP OTP BUTTON (For testing when SMS fails)
+            Center(
+              child: TextButton(
+                onPressed: () async {
+                  final prefs = await SharedPreferences.getInstance();
+                  await prefs.setInt("user_id", widget.userId);
+                  await prefs.setBool("is_logged_in", true);
+                  await prefs.setString("user_email", widget.email);
+                  
+                  if (mounted) {
+                    Navigator.pushNamedAndRemoveUntil(
+                      context, "/home", (route) => false);
+                  }
+                },
+                child: const Text(
+                  "Skip OTP (Testing Only)",
+                  style: TextStyle(
+                    color: Colors.grey,
+                    fontSize: 14,
                   ),
                 ),
               ),

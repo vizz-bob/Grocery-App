@@ -1,23 +1,71 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+
 import '../theme/bhejdu_colors.dart';
 import '../widgets/top_app_bar.dart';
+import '../utils/preference_manager.dart';
 
-class CheckoutPage extends StatelessWidget {
+class CheckoutPage extends StatefulWidget {
   const CheckoutPage({super.key});
 
   @override
+  State<CheckoutPage> createState() => _CheckoutPageState();
+}
+
+class _CheckoutPageState extends State<CheckoutPage> {
+  Map? selectedAddress;
+  int? selectedAddressId;
+  bool loadingAddress = true;
+
+  final String baseUrl =
+      "https://darkslategrey-chicken-274271.hostingersite.com/api";
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDefaultAddress();
+  }
+
+  /// 🔹 FETCH FIRST SAVED ADDRESS (only first time)
+  Future fetchDefaultAddress() async {
+    final userId = await PreferenceManager.getUserId();
+
+    final response = await http.post(
+      Uri.parse("$baseUrl/get_addresses.php"),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({"user_id": userId}),
+    );
+
+    final data = jsonDecode(response.body);
+
+    if (data["status"] == "success" && data["addresses"].isNotEmpty) {
+      setState(() {
+        selectedAddress = data["addresses"][0];
+        selectedAddressId = selectedAddress!["id"];
+        loadingAddress = false;
+      });
+    } else {
+      setState(() => loadingAddress = false);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
+    /// ⭐ SAFE TOTAL RECEIVE
+    final args =
+    ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    final int total = args?["total"] ?? 0;
+
     return Scaffold(
       backgroundColor: BhejduColors.bgLight,
-
       body: Column(
         children: [
-          /// 🔵 Custom App Bar
           BhejduAppBar(
             title: "Checkout",
             showBack: true,
             onBackTap: () => Navigator.pop(context),
-                // You can add login logic
           ),
 
           Expanded(
@@ -38,70 +86,73 @@ class CheckoutPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: const [
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 8,
-                          offset: Offset(2, 3),
-                        ),
-                      ],
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.location_on,
-                            color: BhejduColors.primaryBlue, size: 28),
-                        const SizedBox(width: 12),
+                  /// ⭐ UPDATED — RECEIVE SELECTED ADDRESS
+                  GestureDetector(
+                    onTap: () async {
+                      final result =
+                      await Navigator.pushNamed(context, "/address");
 
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: const [
-                              Text(
-                                "Home Address",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: BhejduColors.textDark,
-                                ),
-                              ),
-                              SizedBox(height: 4),
-                              Text(
-                                "123, Green Valley, Near Central Park,\nDelhi - 110001",
-                                style: TextStyle(
-                                  color: BhejduColors.textGrey,
-                                ),
-                              ),
-                            ],
+                      if (result != null && result is Map) {
+                        setState(() {
+                          selectedAddress = result;
+                          selectedAddressId = result["id"];
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(14),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black12,
+                            blurRadius: 8,
+                            offset: Offset(2, 3),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
+                      child: loadingAddress
+                          ? const Center(child: CircularProgressIndicator())
+                          : Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Icon(Icons.location_on,
+                              color: BhejduColors.primaryBlue, size: 28),
+                          const SizedBox(width: 12),
+
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  selectedAddress?["title"] ??
+                                      "Add Address",
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w700,
+                                    color: BhejduColors.textDark,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                Text(
+                                  selectedAddress?["address"] ??
+                                      "Tap to add delivery address",
+                                  style: const TextStyle(
+                                    color: BhejduColors.textGrey,
+                                    height: 1.4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const Icon(Icons.edit,
+                              color: BhejduColors.primaryBlue),
+                        ],
+                      ),
                     ),
-                  ),
-
-                  const SizedBox(height: 25),
-
-                  // ---------------------- PAYMENT SECTION ----------------------
-                  const Text(
-                    "Payment Method",
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: BhejduColors.textDark,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-
-                  Column(
-                    children: [
-                      paymentTile("Cash on Delivery", Icons.money),
-                      paymentTile("UPI / Wallet", Icons.account_balance_wallet),
-                      paymentTile("Credit / Debit Card", Icons.credit_card),
-                    ],
                   ),
 
                   const SizedBox(height: 25),
@@ -117,17 +168,7 @@ class CheckoutPage extends StatelessWidget {
                   ),
                   const SizedBox(height: 12),
 
-                  summaryRow("Items Total", "₹450"),
-                  summaryRow("Delivery Charges", "₹40"),
-                  summaryRow("Discount", "-₹50"),
-
-                  const Divider(height: 30, thickness: 1),
-
-                  summaryRow(
-                    "Grand Total",
-                    "₹440",
-                    isBold: true,
-                  ),
+                  summaryRow("Grand Total", "₹$total", isBold: true),
 
                   const SizedBox(height: 40),
 
@@ -135,13 +176,22 @@ class CheckoutPage extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.pushNamed(context, "/orderConfirmation");
+                      onPressed: selectedAddressId == null
+                          ? null
+                          : () {
+                        Navigator.pushNamed(
+                          context,
+                          "/orderConfirmation",
+                          arguments: {
+                            "address_id": selectedAddressId,
+                            "total": total,
+                          },
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: BhejduColors.primaryBlue,
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 14, horizontal: 16),
+                        padding:
+                        const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(14),
                         ),
@@ -167,33 +217,7 @@ class CheckoutPage extends StatelessWidget {
     );
   }
 
-  /// Payment Option Widget
-  Widget paymentTile(String title, IconData icon) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: BhejduColors.borderLight),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: BhejduColors.primaryBlue, size: 26),
-          const SizedBox(width: 12),
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 16,
-              color: BhejduColors.textDark,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Summary Row Widget
+  /// SUMMARY ROW
   Widget summaryRow(String label, String value, {bool isBold = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -204,7 +228,8 @@ class CheckoutPage extends StatelessWidget {
             label,
             style: TextStyle(
               fontSize: isBold ? 17 : 15,
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.w500,
+              fontWeight:
+              isBold ? FontWeight.w700 : FontWeight.w500,
               color: BhejduColors.textDark,
             ),
           ),
@@ -212,7 +237,8 @@ class CheckoutPage extends StatelessWidget {
             value,
             style: TextStyle(
               fontSize: isBold ? 17 : 15,
-              fontWeight: isBold ? FontWeight.w700 : FontWeight.w600,
+              fontWeight:
+              isBold ? FontWeight.w700 : FontWeight.w600,
               color: BhejduColors.primaryBlue,
             ),
           ),
