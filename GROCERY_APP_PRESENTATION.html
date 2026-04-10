@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery App - Architecture & Workflow</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+        }
+        
+        .slide {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            page-break-after: always;
+            min-height: 800px;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        
+        h2 {
+            color: #667eea;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #555;
+            font-size: 1.3em;
+            margin: 20px 0 10px 0;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.2em;
+            margin-bottom: 30px;
+        }
+        
+        .mermaid {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .feature-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+        
+        .feature-card h4 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+        
+        .feature-card ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .feature-card li {
+            padding: 5px 0;
+            color: #555;
+        }
+        
+        .feature-card li:before {
+            content: "✓ ";
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .tech-stack {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .tech-item {
+            text-align: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            margin: 10px;
+            min-width: 150px;
+        }
+        
+        .tech-item .icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .tech-item h4 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+        
+        .tech-item p {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 30px;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 3em;
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .api-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .api-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+        }
+        
+        .api-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .api-table tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .github-link {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+        
+        .github-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 1.2em;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+            .slide {
+                box-shadow: none;
+                page-break-after: always;
+                margin: 0;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- SLIDE 1: Title -->
+    <div class="slide">
+        <h1>🛒 Grocery Delivery App</h1>
+        <p class="subtitle">Full-Stack Flutter Application with PHP Backend</p>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number">20+</div>
+                <div class="stat-label">Screens</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">15+</div>
+                <div class="stat-label">API Endpoints</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number">5</div>
+                <div class="stat-label">Core Modules</div>
+            </div>
+        </div>
+        
+        <div class="github-link">
+            <strong>GitHub Repository:</strong><br>
+            <a href="https://github.com/vizz-bob/Grocery-App">github.com/vizz-bob/Grocery-App</a>
+        </div>
+    </div>
+
+    <!-- SLIDE 2: Architecture -->
+    <div class="slide">
+        <h2>🏗️ System Architecture</h2>
+        <div class="mermaid">
+flowchart TB
+    subgraph Mobile["📱 Flutter App"]
+        UI["UI Layer\nScreens & Widgets"]
+        Logic["Business Logic\nProviders & Models"]
+        Data["Data Layer\nHTTP / Local DB"]
+    end
+    
+    Storage[("🗄️ SharedPreferences\nUser & Cart Data")]
+    
+    subgraph Backend["🔧 PHP API"]
+        Auth["Auth API"]
+        Product["Product API"]
+        Order["Order API"]
+        Address["Address API"]
+    end
+    
+    Database[("🗃️ MySQL\nDatabase")]
+    
+    UI --> Logic --> Data
+    Data --> Storage
+    Data -.->|JSON| Auth
+    Data -.->|JSON| Product
+    Data -.->|JSON| Order
+    Data -.->|JSON| Address
+    
+    Auth --> Database
+    Product --> Database
+    Order --> Database
+    Address --> Database
+    
+    style Mobile fill:#e3f2fd
+    style Backend fill:#fff3e0
+    style Database fill:#f3e5f5
+    style Storage fill:#e8f5e9
+        </div>
+    </div>
+
+    <!-- SLIDE 3: User Flow -->
+    <div class="slide">
+        <h2>👤 User Journey Flow</h2>
+        <div class="mermaid">
+flowchart LR
+    A["📱 Splash"] --> B["🔐 Login"]
+    B --> C["📝 Signup"]
+    C --> D["🔢 OTP"]
+    D --> E["🏠 Home"]
+    B --> E
+    
+    E --> F["🛒 Browse Products"]
+    E --> G["📂 Categories"]
+    E --> H["👤 Profile"]
+    
+    F --> I["🛍️ Add to Cart"]
+    I --> J["🛒 View Cart"]
+    J --> K["💳 Checkout"]
+    K --> L["✅ Order Placed"]
+    
+    L --> M["📍 Address"]
+    L --> N["💰 Payment"]
+    L --> O["📊 Track Order"]
+    
+    style E fill:#bbdefb
+    style L fill:#c8e6c9
+    style K fill:#fff9c4
+        </div>
+    </div>
+
+    <!-- SLIDE 4: Features -->
+    <div class="slide">
+        <h2>⭐ Key Features</h2>
+        
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h4>🔐 Authentication</h4>
+                <ul>
+                    <li>Email/Password Login</li>
+                    <li>User Registration</li>
+                    <li>OTP Verification</li>
+                    <li>Password Reset</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4>🛒 Shopping</h4>
+                <ul>
+                    <li>Browse Categories</li>
+                    <li>Product Search</li>
+                    <li>Add to Cart</li>
+                    <li>View Cart & Edit</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4>📍 Address Management</h4>
+                <ul>
+                    <li>Add New Address</li>
+                    <li>Edit Address</li>
+                    <li>Delete Address</li>
+                    <li>Set Default</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4>💳 Checkout</h4>
+                <ul>
+                    <li>Select Address</li>
+                    <li>Payment Method</li>
+                    <li>Apply Coupon</li>
+                    <li>Place Order</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4>📦 Orders</h4>
+                <ul>
+                    <li>Order History</li>
+                    <li>Track Order</li>
+                    <li>Order Details</li>
+                    <li>Reorder</li>
+                </ul>
+            </div>
+            
+            <div class="feature-card">
+                <h4>👤 User Profile</h4>
+                <ul>
+                    <li>View Profile</li>
+                    <li>Edit Profile</li>
+                    <li>Order History</li>
+                    <li>Wallet Balance</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SLIDE 5: Tech Stack -->
+    <div class="slide">
+        <h2>🛠️ Technology Stack</h2>
+        
+        <div class="tech-stack">
+            <div class="tech-item">
+                <div class="icon">📱</div>
+                <h4>Flutter</h4>
+                <p>Dart 3.x</p>
+                <p>Material UI</p>
+            </div>
+            
+            <div class="tech-item">
+                <div class="icon">🔧</div>
+                <h4>PHP</h4>
+                <p>REST API</p>
+                <p>JSON Response</p>
+            </div>
+            
+            <div class="tech-item">
+                <div class="icon">🗃️</div>
+                <h4>MySQL</h4>
+                <p>Database</p>
+                <p>Relational</p>
+            </div>
+            
+            <div class="tech-item">
+                <div class="icon">🗄️</div>
+                <h4>SharedPreferences</h4>
+                <p>Local Storage</p>
+                <p>User Session</p>
+            </div>
+            
+            <div class="tech-item">
+                <div class="icon">📡</div>
+                <h4>HTTP</h4>
+                <p>REST API</p>
+                <p>JSON</p>
+            </div>
+        </div>
+        
+        <div class="mermaid" style="margin-top: 40px;">
+flowchart TB
+    subgraph Mobile["📱 Mobile App"]
+        F["Flutter/Dart"]
+        S["SharedPreferences"]
+    end
+    
+    subgraph Backend["🔌 Backend"]
+        P["PHP API"]
+    end
+    
+    subgraph Database["🗃️ Database"]
+        M["MySQL"]
+    end
+    
+    F <-->|HTTP/JSON| P
+    F --> S
+    P -->|SQL| M
+    
+    style Mobile fill:#e1f5fe
+    style Backend fill:#fff3e0
+    style Database fill:#f3e5f5
+        </div>
+    </div>
+
+    <!-- SLIDE 6: API Endpoints -->
+    <div class="slide">
+        <h2>🔌 API Endpoints</h2>
+        
+        <table class="api-table">
+            <thead>
+                <tr>
+                    <th>Module</th>
+                    <th>Endpoint</th>
+                    <th>Method</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="4"><strong>Auth</strong></td>
+                    <td>/login.php</td>
+                    <td>POST</td>
+                    <td>User login</td>
+                </tr>
+                <tr>
+                    <td>/signup.php</td>
+                    <td>POST</td>
+                    <td>Register new user</td>
+                </tr>
+                <tr>
+                    <td>/verify_otp.php</td>
+                    <td>POST</td>
+                    <td>Verify OTP code</td>
+                </tr>
+                <tr>
+                    <td>/forgot_password.php</td>
+                    <td>POST</td>
+                    <td>Reset password</td>
+                </tr>
+                <tr>
+                    <td rowspan="3"><strong>Product</strong></td>
+                    <td>/get_banners.php</td>
+                    <td>GET</td>
+                    <td>Fetch banners</td>
+                </tr>
+                <tr>
+                    <td>/get_categories.php</td>
+                    <td>GET</td>
+                    <td>Get categories</td>
+                </tr>
+                <tr>
+                    <td>/get_products.php</td>
+                    <td>GET</td>
+                    <td>Fetch products</td>
+                </tr>
+                <tr>
+                    <td rowspan="3"><strong>Order</strong></td>
+                    <td>/checkout.php</td>
+                    <td>POST</td>
+                    <td>Place order</td>
+                </tr>
+                <tr>
+                    <td>/get_orders.php</td>
+                    <td>GET</td>
+                    <td>Order history</td>
+                </tr>
+                <tr>
+                    <td>/track_order.php</td>
+                    <td>GET</td>
+                    <td>Track order</td>
+                </tr>
+                <tr>
+                    <td rowspan="3"><strong>Address</strong></td>
+                    <td>/add_address.php</td>
+                    <td>POST</td>
+                    <td>Add address</td>
+                </tr>
+                <tr>
+                    <td>/get_addresses.php</td>
+                    <td>GET</td>
+                    <td>Get addresses</td>
+                </tr>
+                <tr>
+                    <td>/delete_address.php</td>
+                    <td>POST</td>
+                    <td>Delete address</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- SLIDE 7: GitHub -->
+    <div class="slide">
+        <h1>🚀 Project Repository</h1>
+        <p class="subtitle">Complete source code available on GitHub</p>
+        
+        <div style="text-align: center; margin-top: 50px;">
+            <div style="font-size: 5em; margin-bottom: 20px;">📁</div>
+            <h2 style="border: none;">github.com/vizz-bob/Grocery-App</h2>
+            
+            <div style="margin-top: 40px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+                <h3>📂 Project Structure:</h3>
+                <pre style="background: #f5f5f5; padding: 20px; border-radius: 10px; font-family: monospace; line-height: 1.6;">
+lib/
+├── main.dart              # Entry point
+├── models/                # Data models
+├── screens/               # UI screens
+├── services/              # API services
+├── theme/                 # App theme
+├── utils/                 # Utilities
+└── widgets/               # Reusable widgets
+
+assets/                    # Images & fonts
+android/                   # Android config
+ios/                       # iOS config
+                </pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+    </script>
+</body>
+</html>
