@@ -1,4 +1,4 @@
-# Bhejdu Grocery App
+# Grocery App
 
 A Flutter-based grocery delivery application with a PHP backend.
 
