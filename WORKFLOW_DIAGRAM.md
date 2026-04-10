@@ -8,13 +8,13 @@
 │                      (Flutter/Dart)                             │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
-│  │   UI Layer  │  │  Logic Layer│  │  Data Layer │            │
-│  │             │  │             │  │             │            │
-│  │ • Screens   │  │ • Providers │  │ • API Calls │            │
-│  │ • Widgets   │  │ • Models    │  │ • Local DB  │            │
-│  │ • Themes    │  │ • Services  │  │ • SharedPref│            │
-│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │   UI Layer  │  │  Logic Layer│  │  Data Layer │              │
+│  │             │  │             │  │             │              │
+│  │ • Screens   │  │ • Providers │  │ • API Calls │              │
+│  │ • Widgets   │  │ • Models    │  │ • Local DB  │              │
+│  │ • Themes    │  │ • Services  │  │ • SharedPref│              │
+│  └──────┬──────┘  └──────┬──────┘  └──────┬──────┘              │
 │         │                │                │                     │
 │         └────────────────┴────────────────┘                     │
 │                          │                                      │
@@ -32,19 +32,19 @@
 │           (darkslategrey-chicken-274271.hostingersite.com)      │
 ├─────────────────────────────────────────────────────────────────┤
 │                                                                 │
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐            │
-│  │  Auth API   │  │ Product API │  │  Order API  │            │
-│  │  • login    │  │  • banners  │  │  • checkout │            │
-│  │  • signup   │  │  • products │  │  • track    │            │
-│  │  • otp      │  │  • search   │  │  • history  │            │
-│  └─────────────┘  └─────────────┘  └─────────────┘            │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
+│  │  Auth API   │  │ Product API │  │  Order API  │              │
+│  │  • login    │  │  • banners  │  │  • checkout │              │
+│  │  • signup   │  │  • products │  │  • track    │              │
+│  │  • otp      │  │  • search   │  │  • history  │              │
+│  └─────────────┘  └─────────────┘  └─────────────┘              │
 │                                                                 │
 └──────────────────────────┬──────────────────────────────────────┘
                            │
                            ▼ SQL
 ┌─────────────────────────────────────────────────────────────────┐
 │                      MySQL DATABASE                             │
-│  • users    • products  • orders  • addresses  • categories      │
+│  • users    • products  • orders  • addresses  • categories     │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -58,16 +58,16 @@
 └────┬────┘
      │
      ▼
-┌─────────────┐     ┌─────────────┐
-│ Splash Screen│────▶│ Login/Signup │
-└─────────────┘     └──────┬──────┘
+┌───────────────┐     ┌───────────────┐
+│ Splash Screen │────▶│ Login/Signup  │
+└───────────────┘     └──────┬────────┘
                            │
               ┌────────────┼────────────┐
               │            │            │
               ▼            ▼            ▼
         ┌─────────┐  ┌─────────┐  ┌─────────┐
         │  Login  │  │  Signup │  │   OTP   │
-        │  (Email)│  │(New User)│  │Verify   │
+        │  (Email)│  │(New User)│ │Verify   │
         └────┬────┘  └────┬────┘  └────┬────┘
              │            │            │
              └────────────┴────────────┘
@@ -106,12 +106,12 @@
                    │ • Remove    │
                    └──────┬──────┘
                           ▼
-                   ┌─────────────┐
-                   │   CHECKOUT  │
-                   │ • Address   │
-                   │ • Payment   │
-                   │ • Place Order│
-                   └──────┬──────┘
+                   ┌───────────────┐
+                   │   CHECKOUT    │
+                   │ • Address     │
+                   │ • Payment     │
+                   │ • Place Order │
+                   └──────┬────────┘
                           ▼
                    ┌─────────────┐
                    │ORDER PLACED │
@@ -127,17 +127,17 @@
 
 ```
 ┌────────────────────────────────────────────────────────────┐
-│                    APP FEATURES                             │
+│                    APP FEATURES                            │
 ├────────────────────────────────────────────────────────────┤
-│                                                             │
-│  🔐 AUTHENTICATION          🛒 SHOPPING                     │
-│  ├─ Login (Email/Pass)      ├─ Browse Categories          │
-│  ├─ Signup (New User)       ├─ Product Search             │
+│                                                            │
+│  🔐 AUTHENTICATION          🛒 SHOPPING                    │
+│  ├─ Login (Email/Pass)      ├─ Browse Categories           │
+│  ├─ Signup (New User)       ├─ Product Search              │
 │  ├─ OTP Verification        ├─ Add to Cart                 │
 │  └─ Password Reset          ├─ View Cart                   │
 │                             ├─ Update Quantity             │
 │  🏠 ADDRESS MANAGEMENT      └─ Remove Items                │
-│  ├─ Add New Address                                         │
+│  ├─ Add New Address                                        │
 │  ├─ Edit Address           💳 CHECKOUT                     │
 │  ├─ Delete Address          ├─ Select Address              │
 │  └─ Set Default             ├─ Payment Method              │
@@ -145,13 +145,13 @@
 │  📦 ORDERS                  └─ Place Order                 │
 │  ├─ Order History                                          │
 │  ├─ Track Order            👤 USER PROFILE                 │
-│  ├─ Order Details           ├─ View Profile                 │
+│  ├─ Order Details           ├─ View Profile                │
 │  └─ Reorder                 ├─ Edit Profile                │
 │                             ├─ Order History               │
 │  🔔 NOTIFICATIONS           ├─ Wallet                      │
-│  ├─ Order Updates           └─ Logout                     │
+│  ├─ Order Updates           └─ Logout                      │
 │  └─ Promotions                                             │
-│                                                             │
+│                                                            │
 └────────────────────────────────────────────────────────────┘
 ```
 
@@ -160,38 +160,38 @@
 ## 4. API Integration Flow
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│                    API INTEGRATION                          │
-├────────────────────────────────────────────────────────────┤
-│                                                             │
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    API INTEGRATION                                      │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
 │  BASE URL: https://darkslategrey-chicken-274271.hostingersite.com/api
-│                                                             │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐   │
-│  │   AUTH      │    │   PRODUCT   │    │   ORDER     │   │
-│  ├─────────────┤    ├─────────────┤    ├─────────────┤   │
-│  │ POST /login │    │ GET /banners│    │POST/checkout│   │
-│  │ POST /signup│    │ GET /cats   │    │GET /orders  │   │
-│  │ POST /verify│    │ GET /prods  │    │GET /track   │   │
-│  │POST /forgot │    │GET /search  │    │             │   │
-│  └─────────────┘    └─────────────┘    └─────────────┘   │
-│                                                             │
-│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐   │
-│  │   ADDRESS   │    │   PROFILE   │    │   USER      │   │
-│  ├─────────────┤    ├─────────────┤    ├─────────────┤   │
-│  │POST /add    │    │GET /profile │    │PUT /update  │   │
-│  │GET /list    │    │PUT /update  │    │GET /wallet  │   │
-│  │PUT /edit    │    │POST /image  │    │             │   │
-│  │DEL /delete  │    │             │    │             │   │
-│  └─────────────┘    └─────────────┘    └─────────────┘   │
-│                                                             │
-│  REQUEST FORMAT:           RESPONSE FORMAT:                │
-│  {                           {                             │
-│    "user_id": 123,             "status": "success",        │
-│    "param": "value"            "message": "...",             │
-│  }                             "data": {...}               │
-│                              }                             │
-│                                                             │
-└────────────────────────────────────────────────────────────┘
+│                                                                         │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                  │
+│  │   AUTH      │    │   PRODUCT   │    │   ORDER     │                  │
+│  ├─────────────┤    ├─────────────┤    ├─────────────┤                  │
+│  │ POST /login │    │ GET /banners│    │POST/checkout│                  │
+│  │ POST /signup│    │ GET /cats   │    │GET /orders  │                  │
+│  │ POST /verify│    │ GET /prods  │    │GET /track   │                  │
+│  │POST /forgot │    │GET /search  │    │             │                  │
+│  └─────────────┘    └─────────────┘    └─────────────┘                  │
+│                                                                         │
+│  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐                  │
+│  │   ADDRESS   │    │   PROFILE   │    │   USER      │                  │
+│  ├─────────────┤    ├─────────────┤    ├─────────────┤                  │
+│  │POST /add    │    │GET /profile │    │PUT /update  │                  │
+│  │GET /list    │    │PUT /update  │    │GET /wallet  │                  │
+│  │PUT /edit    │    │POST /image  │    │             │                  │
+│  │DEL /delete  │    │             │    │             │                  │
+│  └─────────────┘    └─────────────┘    └─────────────┘                  │
+│                                                                         │
+│  REQUEST FORMAT:           RESPONSE FORMAT:                             │
+│  {                           {                                          │
+│    "user_id": 123,             "status": "success",                     │
+│    "param": "value"            "message": "...",                        │
+│  }                             "data": {...}                            │
+│                              }                                          │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -199,32 +199,32 @@
 ## 5. Tech Stack Visualization
 
 ```
-┌────────────────────────────────────────────────────────────┐
-│                    TECH STACK                               │
-├────────────────────────────────────────────────────────────┤
-│                                                             │
-│  ┌─────────────────┐        ┌─────────────────┐            │
-│  │    FRONTEND     │◄──────►│     BACKEND     │            │
-│  │                 │        │                 │            │
-│  │  Flutter/Dart   │  HTTP  │  PHP REST API   │            │
-│  │  Dart 3.x       │  JSON  │  PHP 8.x        │            │
-│  │  Material UI    │        │  RESTful        │            │
-│  │  Provider       │        │  JWT Auth       │            │
-│  └────────┬────────┘        └────────┬────────┘            │
-│           │                          │                      │
-│           ▼                          ▼                      │
-│  ┌─────────────────┐        ┌─────────────────┐         │
-│  │  STATE STORAGE  │        │    DATABASE     │         │
-│  │                 │        │                 │         │
-│  │ SharedPreferences│       │  MySQL 8.x      │         │
-│  │ Local Storage   │        │  Relational     │         │
-│  └─────────────────┘        └─────────────────┘         │
-│                                                             │
-│  EXTERNAL SERVICES:                                         │
-│  • Twilio SMS (OTP) - Currently using "Skip OTP" for testing│
-│  • Image Hosting - Cloud server for product images            │
-│                                                             │
-└────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────┐
+│                    TECH STACK                                  │
+├────────────────────────────────────────────────────────────────┤
+│                                                                │
+│  ┌─────────────────┐        ┌─────────────────┐                │
+│  │    FRONTEND     │◄──────►│     BACKEND     │                │
+│  │                 │        │                 │                │
+│  │  Flutter/Dart   │  HTTP  │  PHP REST API   │                │
+│  │  Dart 3.x       │  JSON  │  PHP 8.x        │                │
+│  │  Material UI    │        │  RESTful        │                │
+│  │  Provider       │        │  JWT Auth       │                │
+│  └────────┬────────┘        └────────┬────────┘                │
+│           │                          │                         │
+│           ▼                          ▼                         │
+│  ┌───────────────────┐        ┌─────────────────┐              │
+│  │  STATE STORAGE    │        │    DATABASE     │              │
+│  │                   │        │                 │              │
+│  │ SharedPreferences │        │  MySQL 8.x      │              │
+│  │ Local Storage     │        │  Relational     │              │
+│  └───────────────────┘        └─────────────────┘              │
+│                                                                │
+│  EXTERNAL SERVICES:                                            │
+│  • Twilio SMS (OTP) - Currently using "Skip OTP" for testing   │
+│  • Image Hosting - Cloud server for product images             │
+│                                                                │
+└────────────────────────────────────────────────────────────────┘
 ```
 
 ---
