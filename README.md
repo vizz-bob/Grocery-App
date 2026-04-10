@@ -66,7 +66,7 @@ lib/
 
 ## Screenshots
 
-<img width="511" height="826" alt="image" src="https://github.com/user-attachments/assets/248b3df6-e62d-41ac-b133-a17de35c8caa" />
+<img width="382" height="826" alt="image" src="https://github.com/user-attachments/assets/248b3df6-e62d-41ac-b133-a17de35c8caa" />
 <img width="382" height="826" alt="image" src="https://github.com/user-attachments/assets/399c1911-eb5e-4b96-b497-a745bf65d336" />
 <img width="382" height="826" alt="image" src="https://github.com/user-attachments/assets/1e49f398-3301-47ac-a7cb-0e01781f6274" />
 <img width="382" height="826" alt="image" src="https://github.com/user-attachments/assets/7a072512-1565-4219-8071-a33cfac958eb" />
